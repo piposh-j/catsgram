@@ -28,9 +28,6 @@ public class UserController {
             throw new ConditionsNotMetException("Имейл должен быть указан");
         }
 
-        if (user.getId() == null) {
-            throw new ConditionsNotMetException("Id должен быть указан");
-        }
 
         if (emailAlreadyExist(user).isPresent()) {
             throw new DuplicatedDataException("Этот имейл уже используется");
@@ -51,28 +48,24 @@ public class UserController {
             throw new ConditionsNotMetException("Id должен быть указан");
         }
         if (users.containsKey(newUser.getId())) {
-            User oldPost = users.get(newUser.getId());
-            if (newUser.getEmail() == null || newUser.getEmail().isBlank()) {
-                throw new ConditionsNotMetException("Электроная почта не может быть пустая");
+            User oldUser = users.get(newUser.getId());
+            if (newUser.getEmail() != null || !newUser.getEmail().isBlank()) {
+                oldUser.setEmail(newUser.getEmail());
             }
 
-            if (newUser.getPassword() == null || newUser.getPassword().isBlank()) {
-                throw new ConditionsNotMetException("Пароль не может быть пустым");
+            if (newUser.getPassword() != null && !newUser.getPassword().isBlank()) {
+                oldUser.setPassword(newUser.getPassword());
             }
 
-            if (newUser.getUsername() == null || newUser.getUsername().isBlank()) {
-                throw new ConditionsNotMetException("Имя не может быть пустым");
+            if (newUser.getUsername() != null && !newUser.getUsername().isBlank()) {
+                oldUser.setUsername(newUser.getUsername());
             }
             Optional<User> result = emailAlreadyExist(newUser);
             if (result.isPresent() && !Objects.equals(result.get().getId(), newUser.getId())) {
                 throw new DuplicatedDataException("Этот имейл уже используется");
             }
 
-            // если публикация найдена и все условия соблюдены, обновляем её содержимое
-            oldPost.setEmail(newUser.getEmail());
-            oldPost.setUsername(newUser.getUsername());
-            oldPost.setPassword(newUser.getPassword());
-            return oldPost;
+            return oldUser;
         }
         throw new NotFoundException("Пост с id = " + newUser.getId() + " не найден");
     }
