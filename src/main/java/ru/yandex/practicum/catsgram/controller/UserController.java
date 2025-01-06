@@ -1,0 +1,96 @@
+package ru.yandex.practicum.catsgram.controller;
+
+import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.catsgram.exception.ConditionsNotMetException;
+import ru.yandex.practicum.catsgram.exception.DuplicatedDataException;
+import ru.yandex.practicum.catsgram.exception.NotFoundException;
+import ru.yandex.practicum.catsgram.model.User;
+
+import java.time.Instant;
+import java.util.*;
+
+@RestController
+@RequestMapping("/users")
+public class UserController {
+
+    private final Map<Long, User> users = new HashMap<>();
+
+    @GetMapping
+    public Collection<User> findAll() {
+        return users.values();
+    }
+
+
+    @PostMapping
+    public User create(@RequestBody User user) {
+        // проверяем выполнение необходимых условий
+        if (user.getEmail() == null || user.getUsername().isBlank()) {
+            throw new ConditionsNotMetException("Имейл должен быть указан");
+        }
+
+        if (user.getId() == null) {
+            throw new ConditionsNotMetException("Id должен быть указан");
+        }
+
+        if (emailAlreadyExist(user).isPresent()) {
+            throw new DuplicatedDataException("Этот имейл уже используется");
+        }
+
+        // формируем дополнительные данные
+        user.setId(getNextId());
+        user.setRegistrationDate(Instant.now());
+        // сохраняем новую публикацию в памяти приложения
+        users.put(user.getId(), user);
+        return user;
+    }
+
+    @PutMapping
+    public User update(@RequestBody User newUser) {
+        // проверяем необходимые условия
+        if (newUser.getId() == null) {
+            throw new ConditionsNotMetException("Id должен быть указан");
+        }
+        if (users.containsKey(newUser.getId())) {
+            User oldPost = users.get(newUser.getId());
+            if (newUser.getEmail() == null || newUser.getEmail().isBlank()) {
+                throw new ConditionsNotMetException("Электроная почта не может быть пустая");
+            }
+
+            if (newUser.getPassword() == null || newUser.getPassword().isBlank()) {
+                throw new ConditionsNotMetException("Пароль не может быть пустым");
+            }
+
+            if (newUser.getUsername() == null || newUser.getUsername().isBlank()) {
+                throw new ConditionsNotMetException("Имя не может быть пустым");
+            }
+            Optional<User> result = emailAlreadyExist(newUser);
+            if (result.isPresent() && !Objects.equals(result.get().getId(), newUser.getId())) {
+                throw new DuplicatedDataException("Этот имейл уже используется");
+            }
+
+            // если публикация найдена и все условия соблюдены, обновляем её содержимое
+            oldPost.setEmail(newUser.getEmail());
+            oldPost.setUsername(newUser.getUsername());
+            oldPost.setPassword(newUser.getPassword());
+            return oldPost;
+        }
+        throw new NotFoundException("Пост с id = " + newUser.getId() + " не найден");
+    }
+
+    private Optional<User> emailAlreadyExist(User user) {
+        return users.values()
+                .stream()
+                .filter(it -> it.getEmail().equals(user.getEmail()))
+                .findFirst();
+    }
+
+    // вспомогательный метод для генерации идентификатора нового пользователя
+    private long getNextId() {
+        long currentMaxId = users.keySet()
+                .stream()
+                .mapToLong(id -> id)
+                .max()
+                .orElse(0);
+        return ++currentMaxId;
+    }
+}
