@@ -29,7 +29,7 @@ public class ErrorHandler {
 
     @ExceptionHandler({ConditionsNotMetException.class, ImageFileException.class})
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
-    public ErrorResponse handleConditionsNotMet(final RuntimeException e) {
+    public ErrorResponse handleUnprocessableEntity(final RuntimeException e) {
         return new ErrorResponse(e.getMessage());
     }
 
