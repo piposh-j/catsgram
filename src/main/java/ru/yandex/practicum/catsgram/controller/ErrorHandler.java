@@ -7,10 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.yandex.practicum.catsgram.exception.ConditionsNotMetException;
-import ru.yandex.practicum.catsgram.exception.DuplicatedDataException;
-import ru.yandex.practicum.catsgram.exception.NotFoundException;
-import ru.yandex.practicum.catsgram.exception.ParameterNotValidException;
+import ru.yandex.practicum.catsgram.exception.*;
 import ru.yandex.practicum.catsgram.model.ErrorResponse;
 
 import java.util.Map;
@@ -30,9 +27,9 @@ public class ErrorHandler {
         return new ErrorResponse(e.getMessage());
     }
 
-    @ExceptionHandler
+    @ExceptionHandler({ConditionsNotMetException.class, ImageFileException.class})
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
-    public ErrorResponse handleConditionsNotMet(final ConditionsNotMetException e) {
+    public ErrorResponse handleConditionsNotMet(final RuntimeException e) {
         return new ErrorResponse(e.getMessage());
     }
 
