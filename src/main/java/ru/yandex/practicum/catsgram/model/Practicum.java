@@ -1,23 +1,5 @@
 package ru.yandex.practicum.catsgram.model;
 
-import lombok.*;
-
-import lombok.Data;
-
-
-import lombok.Value;
-import lombok.Builder;
-
-import lombok.Value;
-import lombok.Builder;
-
-@Value
-@Builder(toBuilder = true)
-class Point {
-    int x;
-    int y;
-}
-
 public class Practicum {
     public static void main(String[] args) {
 

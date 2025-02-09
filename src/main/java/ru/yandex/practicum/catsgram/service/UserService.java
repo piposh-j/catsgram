@@ -75,7 +75,7 @@ public class UserService {
                 .findFirst();
     }
 
-    public Optional<User> findById(@PathVariable long userId) {
+        public Optional<User> findById(@PathVariable long userId) {
         return users.values().stream()
                 .filter(x -> x.getId() == userId)
                 .findFirst();

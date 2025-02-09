@@ -27,14 +27,14 @@ public class PostController {
             @RequestParam(defaultValue = "0") Long from,
             @RequestParam(defaultValue = "10") Long size
     ) {
-        if( SortOrder.from(sort) == null) {
+        if (SortOrder.from(sort) == null) {
             throw new ParameterNotValidException("sort", "Получено: " + sort + " должно быть: ask или desc");
         }
 
-        if( size <= 0 ) {
+        if (size <= 0) {
             throw new ParameterNotValidException("size", "Размер должен быть больше нуля");
         }
-        if( from < 0 ) {
+        if (from < 0) {
             throw new ParameterNotValidException("from", "Начало выборки должно быть положительным числом");
         }
 
